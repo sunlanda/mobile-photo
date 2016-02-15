@@ -162,10 +162,10 @@ $('#large_container').tap(function(){
     loadImg(cid,function(){
       //移出动画 同时移出监听
       domImage.addEventListener('webkitAnimationEnd', function(){
-        wImage.removeClass('animated bounceInRight');
+        wImage.removeClass('animated fadeInRight');
         domImage.removeEventListener('webkitAnimateionEnd');
       })
-      wImage.addClass('animated bounceInRight');
+      wImage.addClass('animated fadeInRight');
     },false);
   }
 }).swipeRight(function(){
@@ -176,10 +176,10 @@ $('#large_container').tap(function(){
     loadImg(cid,function(){
       //移出动画 同时移出监听
       domImage.addEventListener('webkitAnimationEnd', function(){
-        wImage.removeClass('animated bounceInLeft');
+        wImage.removeClass('animated fadeInLeft');
         domImage.removeEventListener('webkitAnimateionEnd');
       },false)
-      wImage.addClass('animated bounceInLeft')
+      wImage.addClass('animated fadeInLeft')
     });
   }
 })
