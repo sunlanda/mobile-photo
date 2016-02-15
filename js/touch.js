@@ -5,7 +5,7 @@
 ;(function($){
   var touch = {},
     touchTimeout, tapTimeout, swipeTimeout, longTapTimeout,
-    longTapDelay = 350,
+    longTapDelay = 750,
     gesture
 
   function swipeDirection(x1, x2, y1, y2) {
