@@ -2,8 +2,6 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-  <link rel="stylesheet" href="css/animate.css">
   <title>mobile-photo-demo</title>
   <style>
   /* 默认样式初始化 */
@@ -26,123 +24,169 @@
     overflow: hidden;
 
   }
-  .img-container{
-
-  }
   .large{
     width: 100%;
     height: 100%;
-    background-color: #000;
-    display: none;
     position: absolute;
     top: 0;
     left: 0;
+    background-color: #000;
   }
 
   </style>
+  <link rel="stylesheet" href="css/animate.css">
+  <script src="js/zepto.min.js"></script>
+  <script src="js/touch.js"></script>
 </head>
-<script src="js/zepto.min.js"></script>
+<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+
+
+
 <body>
-  <ul id="container" class="img-container">
-    <!--  //dom加载图片
-    <li><img src="img/1.jpg" height="220" width="352" alt=""></li> -->
+<ul class="img-container" id="container">
+</ul>
 
-  </ul>
-
-  <div class="large">
-    <div id="large_img">
-
-    </div>
-  </div>
+<div class="large animated fadeIn" id ="large_container" style="display: none">
+  <img id="large_img" src="" alt="">
+</div>
 </body>
+
+
 <script>
-  var total = 17;
-  var zWin = $(window);
-  var render = function(){
-    var padding = 2;
-    var winWidth = zWin.width();
-    //窗口的宽度
-    var picWidth = Math.floor((winWidth-padding*3)/4);
-    //让图片显示为屏幕的1/4 包含padding
-    var tmpl = '';
-    for(var i=1;i<=total;i++){
-      var p = padding;
-      var imgSrc = 'img/'+i+'.jpg';
-      if(i%4==0){
-        p = 0;
-      }
-       /*tmpl +='<li style="width:'+picWidth+'px;padding-left:'+p+'px;height:'+picWidth+'px; padding-top:'+padding+'px"><img src="'+imgSrc+'" /></li>'*/
-       /*以上使用image标签会占用dom资源*/
-       tmpl +='<li data-id="'+i+'" class = "animated rotateInDownRight" style="width:'+picWidth+'px;padding-left:'+p+'px;height:'+picWidth+'px; padding-top:'+padding+'px"><canvas id = "cvs_'+i+'"></canvas></li>'
-       //调用animate动画库
-       // var imageObj = new Image();
-       //等图片加载完成后触发事件
-       imageObj.index =i;
-       imageObj.onload = function(){
-          var cvs = $('#cvs_'+this.index)[0].getContext("2d")
-           cvs.width = this.width;
-           cvs.height = this.height;
-           cvs.drawImage(this,0,0);
-
-       }
-       imageObj.src = imgSrc;
+var total = 17;
+var zWin = $(window);
+var render = function(){
+  // 不加单位方便计算
+  var padding = 2;
+  //获取屏幕宽度
+  var winWidth = zWin.width();
+  //4张图片 3个空隙
+  var picWidth = Math.floor((winWidth-padding*3)/4);
+  var tmpl = '';
+  //遍历每个图片
+  for(var i = 1;i<=total;i++){
+    var p = padding;
+    var imgSrc = 'img/'+i+'.jpg';
+    //遇四取余 用在padding
+    if(i%4==1){
+        p=0
     }
-    $('#container').html(tmpl)
+    //图片dom对象
+    /*tmpl +='<li style="width:'+picWidth+'px;height:'+picWidth+'px;padding-left:'+p+'px;padding-top:'+p+'px;"><img src="'+imgSrc+'"></li>'*/
+    tmpl +='<li data-id="'+i+'" class = "animated bounceIn" style="width:'+picWidth+'px;height:'+picWidth+'px;padding-left:'+p+'px;padding-top:'+p+'px;"><canvas id="cvs_'+i+'"></canvas></li>'
+    var imageObj = new Image();
+    //加载完成后
+    imageObj.index = i;
+    imageObj.onload = function(){
+      //使用canvas进行绘制
+      var cvs = $('#cvs_'+this.index)[0].getContext("2d");
+      cvs.width = this.width;
+      cvs.height = this.height;
+      cvs.drawImage(this, 0, 0);
+    }
+    imageObj.src = imgSrc;
   }
-  render();
+  //完成动态生成
+  $('#container').html(tmpl);
 
-/*小图效果*/
+}
+render();
 
+
+/*大图效果与调整*/
+//定义大图
 var wImage = $('#large_img');
-//给大图容器赋值
-var loadImg = function(id){
+//解决大图滑动两张失效
+var domImage = wImage[0];
+//loadImg方法中设置了宽高的限定
+var loadImg = function(id,callback){
   $('#large_container').css({
     width:zWin.width(),
     height:zWin.height()
-
   }).show();
-  var imgsrc = 'img/'+id+'.large.jpg';
-  // var imageObj = new Image():
-  //当图片加载完成过后设置属性
-  ImageObj.onload =function(){
+  //匹配小图的id 和大图顺序一样
+  var imgSrc = 'img/'+id+'.large.jpg';
+  var imageObj = new Image();
+  //Image改成了ImageObj
+  imageObj.onload = function(){
+    //图片载入后有属性和方法
     var w = this.width;
     var h = this.height;
-    var winWidth = zWin.width():
-    var winHeight = zWin.height():
-
-    //获得图片真实高宽
+    var winWidth = zWin.width();
+    var winHeight = zWin.height();
+    //获取图片真实高度宽度
+    //设置padding 该数值是屏幕宽度-图片真实宽度
     var realw = winHeight*w/h;
     var paddingLeft = parseInt((winWidth-realw)/2);
     var realh = winWidth*h/w;
-    var paddingTop  =parseInt((winHeight-realh)/2);
+    var paddingTop = parseInt((winHeight-realh)/2);
 
-
-    //判断图片长图还是宽图
+    //大图切换时解决不同宽高比bug
+    wImage.css('height','auto').css('width','auto')
+    wImage.css('padding-left','0px').css('padding-top','auto')
+    //如果长宽比例超过1.2 就假定长宽图
     if(h/w>1.2){
-      //如果是长图  就设置图片高度等于视窗高度  宽度加上padding
-      wImage.attr('src',imgsrc).css('height',winHeight).css('padding-left',paddingLeft)
+      wImage.attr('src',imgSrc).css('height',winHeight).css('padding-left',paddingLeft);
     }else{
-      wImage.attr('src',imgsrc).css('width',winWidth).css('padding-top',paddingTop)
+      wImage.attr('src',imgSrc).css('width',winWidth).css('padding-top',paddingTop);
     }
-
+    //如果是点击我就不执行callback了,给大图加滑动效果
+    callback&&callback();
   }
-
-  imageObj.src = imgsrc;
+  imageObj.src = imgSrc;
 }
 
+//给大图id赋值
+var cid;
 
-
-  //委托事件给li 点击加载大图
-$("#container").delegate('li','tap',function(){
-  var _id = $(this).attr('data-id')
+//节省资源 代理设置delegate
+$('#container').delegate('li','tap',function(){
+  //给li添加一个数据属性 (上文for已经循环过)
+  var _id=cid= $(this).attr('data-id');
+  //当触击小图就载入大图方法loadImg
   loadImg(_id);
 })
 
 
+/*大图的交互效果*/
+$('#large_container').tap(function(){
+  $(this).hide();
+  //点击隐藏
+
+/*滑动效果*/
+}).swipeLeft(function(){
+  cid++;
+  if(cid>total){
+    cid =total;
+  }else{
+    loadImg(cid,function(){
+      //移出动画 同时移出监听
+      domImage.addEventListener('webkitAnimationEnd', function(){
+        wImage.removeClass('animated bounceInRight');
+        domImage.removeEventListener('webkitAnimateionEnd');
+      })
+      wImage.addClass('animated bounceInRight');
+    },false);
+  }
+}).swipeRight(function(){
+  cid--;
+  if(cid < 1){
+    cid =1;
+  }else{
+    loadImg(cid,function(){
+      //移出动画 同时移出监听
+      domImage.addEventListener('webkitAnimationEnd', function(){
+        wImage.removeClass('animated bounceInLeft');
+        domImage.removeEventListener('webkitAnimateionEnd');
+      },false)
+      wImage.addClass('animated bounceInLeft')
+    });
+  }
+})
+//else中是加载图片动作
+/*此处不断滑动动画效果会失效 因为滑动第二张时animate已经存在  需要remove一下
+将用绑定解决*/
+
+
 </script>
 </html>
-
-
-
-
-
